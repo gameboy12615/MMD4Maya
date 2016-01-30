@@ -10,7 +10,7 @@ import maya.cmds as cmds
 import maya.utils
 import shiboken
 import shutil
-import threading  
+import threading
 import os
 
 class MainWindow(object):
@@ -31,15 +31,13 @@ class MainWindow(object):
         self.ShowExplorer('vmd')
 
     def OnSelectVmdFile(self, *args):
-        self.__selectedVmdFileIndex = cmds.textScrollList(self.vmdScrollList, query = True, selectIndexedItem = True)
+        self.__selectedVmdFileIndex = cmds.textScrollList(self.vmdScrollList, query = True, selectIndexedItem = True)[0]
 
     def OnDeleteKeyClicked(self, *args):
-        if self.__selectedVmdFileIndex > 0:
-            cmds.textScrollList(self.vmdScrollList, edit = True, removeIndexedItem = self.__selectedVmdFileIndex)
+        self.DeleteSelectedVmdFile()
 
     def OnDeleteButtonClicked(self, *args):
-        if self.__selectedVmdFileIndex > 0:
-            cmds.textScrollList(self.vmdScrollList, edit = True, removeIndexedItem = self.__selectedVmdFileIndex)
+        self.DeleteSelectedVmdFile()
 
     def OnCheckBoxOn(self, *args):
         self.__agreeTerms = True
@@ -67,23 +65,28 @@ class MainWindow(object):
         window = cmds.window(title="MMD4Maya", widthHeight=(600, 580), 
                              sizeable = False, minimizeButton = False, maximizeButton = False)
         # create layout
-        cmds.rowColumnLayout( numberOfColumns=2, columnWidth=[(1, 450), (2, 150)] )
-        self.pmxText = cmds.textField()
-        cmds.button(label = 'Import pmx/pmd file', command = self.OnImportPmxButtonClicked)
-        self.vmdScrollList = cmds.textScrollList(height = 110, allowMultiSelection = False, 
+        mainLayout = cmds.columnLayout(width = 600)
+
+        importLayout = cmds.rowColumnLayout(parent = mainLayout, numberOfColumns=2, columnWidth=[(1, 450), (2, 150)] )
+        self.pmxText = cmds.textField(parent = importLayout)
+        cmds.button(parent = importLayout, label = 'Import pmx/pmd file', command = self.OnImportPmxButtonClicked)
+        self.vmdScrollList = cmds.textScrollList(parent = importLayout, height = 110, allowMultiSelection = False, 
                                                  selectCommand = self.OnSelectVmdFile, deleteKeyCommand = self.OnDeleteKeyClicked)
-        cmds.button(label = 'Add vmd file', command = self.OnAddVmdButtonClicked)
-        #cmds.button(label = 'Delete selected vmd file', command = self.OnDeleteButtonClicked)
-        cmds.columnLayout(width = 600)
-        cmds.separator(height = 10, style = 'none')
-        cmds.text('Log viewer:', font = "boldLabelFont")
-        cmds.separator(height = 10, style = 'none')
-        self.logText = cmds.scrollField(width = 600, height = 300, editable = False)
-        cmds.separator(height = 10, style = 'none')
-        cmds.checkBox(label='You must agree to these terms of use before using the model/motion.', 
+        importButtonLayout = cmds.columnLayout(parent = importLayout, width = 150, rowSpacing = 1)
+        cmds.button(parent = importButtonLayout, label = 'Add vmd file', width = 150, height = 54, command = self.OnAddVmdButtonClicked)
+        cmds.button(parent = importButtonLayout, label = 'Delete selected vmd file', width = 150, height = 54, command = self.OnDeleteButtonClicked)
+
+        processLayout = cmds.columnLayout(parent = mainLayout, width = 600)
+        cmds.separator(parent = processLayout, height = 10, style = 'none')
+        cmds.text('Log viewer:', font = "boldLabelFont", parent = processLayout)
+        cmds.separator(parent = processLayout, height = 10, style = 'none')
+        self.logText = cmds.scrollField(parent = processLayout, width = 600, height = 300, editable = False)
+        cmds.separator(parent = processLayout, height = 10, style = 'none')
+        cmds.checkBox(parent = processLayout, label='You must agree to these terms of use before using the model/motion.', 
                       onCommand = self.OnCheckBoxOn, offCommand = self.OnCheckBoxOff)
-        cmds.separator(height = 10, style = 'none')
-        self.processButton = cmds.button(label = 'Process', width = 600, height = 62, command = self.OnProcessButtonClicked)
+        cmds.separator(parent = processLayout, height = 10, style = 'none')
+        self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 62, 
+                                         command = self.OnProcessButtonClicked)
         # show window
         cmds.showWindow(window)
 
@@ -130,6 +133,13 @@ class MainWindow(object):
         explorerWin = ExplorerWindow(widget, type, self)
         explorerWin.show()
 
+    def DeleteSelectedVmdFile(self):
+        index = int(self.__selectedVmdFileIndex) - 1
+        lenth = len(self.__vmdFileList)
+        if self.__selectedVmdFileIndex > 0 and index < lenth:
+            cmds.textScrollList(self.vmdScrollList, edit = True, removeIndexedItem = self.__selectedVmdFileIndex)
+            del self.__vmdFileList[index]
+
     def CleanTempFiles(self):
         # clean temp fbx directory
         shutil.rmtree(GetDirFormFilePath(self.fbxFilePath),True)
@@ -160,6 +170,9 @@ class MainWindow(object):
             return
         if self.__isProcessing:
             self.MessageBox('Processing now!')
+            return
+        if self.__pmxFile is '':
+            self.MessageBox('Please import a pmx/pmd file!')
             return
         preProcessor = self.Processor('MMD4MayaProcessor', self)
         preProcessor.daemon = True
