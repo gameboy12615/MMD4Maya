@@ -1,6 +1,6 @@
 # MMD4Maya
 This is maya plug-in which use for importing pmx/pmd model to maya.<br>
-It is based on pmx2fbx.exe which is write by http://stereoarts.jp/
+It is based on pmx2fbx.exe which is wrote by http://stereoarts.jp/
 
 ## Install:
 1. Copy `MMD4Maya.py` and `MMD4Maya` folder to your maya plug-ins folder. like: `Maya2016\bin\plug-ins`.
