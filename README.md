@@ -10,6 +10,7 @@ It is based on pmx2fbx.exe which is write by http://stereoarts.jp/
 1. Select a pmx/pmd file.
 2. Select one or multiple vmd files.
 3. Check the terms of use then click Process.
+![](http://images2015.cnblogs.com/blog/675680/201601/675680-20160131230507896-565921880.jpg)
 
 ## Attention:
 1. The file name of fbx file and texture files should not be japanese or chinese.
