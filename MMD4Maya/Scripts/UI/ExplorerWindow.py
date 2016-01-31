@@ -17,10 +17,18 @@ class ExplorerWindow(QtGui.QMainWindow):
         mainLayout = QtGui.QVBoxLayout()
         widget.setLayout(mainLayout)
 
-        self.line = QtGui.QLineEdit(self)
         self.fileBrowserWidget = QtGui.QWidget(self)
         self.dirModel = QtGui.QFileSystemModel()
         self.dirModel.setRootPath("C:/")
+
+        importLayout = QtGui.QHBoxLayout()
+        importLayout.setSpacing(10)
+        self.pathViewer = QtGui.QLineEdit(self)
+        importButton = QtGui.QPushButton('Import')
+        importButton.clicked.connect(self.OnImportButtonClicked)
+        cancelButton = QtGui.QPushButton('Cancel')
+        cancelButton.clicked.connect(self.OnCancelButtonClicked)
+        fileNameLabel = QtGui.QLabel('File name:')
 
         self.nameFilters = []
         if self.explorerType == 'pmd':
@@ -35,11 +43,14 @@ class ExplorerWindow(QtGui.QMainWindow):
         self.folderView.setModel(self.dirModel)
         self.folderView.clicked[QtCore.QModelIndex].connect(self.Clicked) 
         self.folderView.doubleClicked[QtCore.QModelIndex].connect(self.DoubleClicked) 
-
         self.folderView.setColumnWidth(0,250)
 
-        mainLayout.addWidget(self.line,1,0)
         mainLayout.addWidget(self.folderView)
+        mainLayout.addLayout(importLayout)
+        importLayout.addWidget(fileNameLabel)
+        importLayout.addWidget(self.pathViewer)
+        importLayout.addWidget(importButton)
+        importLayout.addWidget(cancelButton)
 
     def CheckFileExt(self, fileName):
         ext = GetExtFromFilePath(fileName)
@@ -48,12 +59,12 @@ class ExplorerWindow(QtGui.QMainWindow):
                 return True
         return False
 
-    def Clicked(self,index):
+    def UpdatePathViewer(self):
         index = self.folderView.currentIndex()
-        dirPath = pmp(self.dirModel.filePath(index)).normpath()
-        self.line.setText(dirPath)
+        path = pmp(self.dirModel.filePath(index)).normpath()
+        self.pathViewer.setText(path)
 
-    def DoubleClicked(self,index):
+    def ImportFile(self):
         index = self.folderView.currentIndex()
         path = pmp(self.dirModel.filePath(index)).normpath()
         if self.CheckFileExt(path):
@@ -62,3 +73,15 @@ class ExplorerWindow(QtGui.QMainWindow):
             elif self.explorerType == 'vmd':
                 self.mainWindow.AddVmdFile(path)
             self.close()
+
+    def Clicked(self,index):
+        self.UpdatePathViewer()
+
+    def DoubleClicked(self,index):
+        self.ImportFile()
+
+    def OnImportButtonClicked(self):
+        self.ImportFile()
+
+    def OnCancelButtonClicked(self):
+        self.close()

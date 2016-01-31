@@ -74,13 +74,14 @@ class FBXModifier:
         for i, boneName in enumerate(boneNames):
             newBoneNames.append(self.FormatBoneName(boneName))
         filterTags = ['NodeAttribute::', 'Model::', 'SubDeformer::']
+        inputFbxLinesLenth = len(inputFbxLines)
         for i, line in enumerate(inputFbxLines):
             if not line:
                 break
             else:
                 for tag in filterTags:
                     if tag in line:
-                        self.mainWindow.Log('modify line ' + str(i) + ' of ' + str(len(inputFbxLines)))
+                        self.mainWindow.Log('modify line ' + str(i) + ' of ' + str(inputFbxLinesLenth))
                         for j, boneName in enumerate(boneNames):
                             inputFbxLines[i] = inputFbxLines[i].replace(boneNames[j], newBoneNames[j])
                         break

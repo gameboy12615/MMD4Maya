@@ -12,6 +12,7 @@ import shiboken
 import shutil
 import threading
 import os
+import glob
 
 class MainWindow(object):
 
@@ -62,7 +63,7 @@ class MainWindow(object):
         # create window
         if cmds.window("MMD4Maya", exists = True):
             cmds.deleteUI("MMD4Maya")
-        window = cmds.window(title="MMD4Maya", widthHeight=(600, 580), 
+        window = cmds.window(title="MMD4Maya", widthHeight=(603, 580), 
                              sizeable = False, minimizeButton = False, maximizeButton = False)
         # create layout
         mainLayout = cmds.columnLayout(width = 600)
@@ -72,9 +73,9 @@ class MainWindow(object):
         cmds.button(parent = importLayout, label = 'Import pmx/pmd file', command = self.OnImportPmxButtonClicked)
         self.vmdScrollList = cmds.textScrollList(parent = importLayout, height = 110, allowMultiSelection = False, 
                                                  selectCommand = self.OnSelectVmdFile, deleteKeyCommand = self.OnDeleteKeyClicked)
-        importButtonLayout = cmds.columnLayout(parent = importLayout, width = 150, rowSpacing = 1)
-        cmds.button(parent = importButtonLayout, label = 'Add vmd file', width = 150, height = 54, command = self.OnAddVmdButtonClicked)
-        cmds.button(parent = importButtonLayout, label = 'Delete selected vmd file', width = 150, height = 54, command = self.OnDeleteButtonClicked)
+        importButtonLayout = cmds.columnLayout(parent = importLayout, width = 149, rowSpacing = 1)
+        cmds.button(parent = importButtonLayout, label = 'Add vmd file', width = 149, height = 54, command = self.OnAddVmdButtonClicked)
+        cmds.button(parent = importButtonLayout, label = 'Delete selected vmd file', width = 149, height = 54, command = self.OnDeleteButtonClicked)
 
         processLayout = cmds.columnLayout(parent = mainLayout, width = 600)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
@@ -85,44 +86,58 @@ class MainWindow(object):
         cmds.checkBox(parent = processLayout, label='You must agree to these terms of use before using the model/motion.', 
                       onCommand = self.OnCheckBoxOn, offCommand = self.OnCheckBoxOff)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
-        self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 62, 
+        self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 60, 
                                          command = self.OnProcessButtonClicked)
         # show window
         cmds.showWindow(window)
 
     def CheckReadmeFile(self, pmxFilePath):
-        self.Log('================================= ReadMe ===================================')
-        readmeFile = GetDirFormFilePath(pmxFilePath) + "readme.txt"
         def ShowDefaultReadme():
+            self.Log('================================= ReadMe ===================================')
             self.Log("Please contact the model/motion author if you need them for commercial use!")
-        if os.path.exists(readmeFile):
-            inputFile = open(readmeFile)
-            lines = inputFile.readlines()
-            inputFile.close()
-            try:
-                for line in lines:
-                    self.Log(line.decode('shift-jis'))
-            except:
-                ShowDefaultReadme()
+        self.ClearLog()
+        txtFilenames = glob.glob(GetDirFormFilePath(pmxFilePath) + '*.txt')
+        if txtFilenames:
+            for readmeFile in txtFilenames:
+                readmeFile = ConvertToUnixPath(readmeFile)
+                if os.path.exists(readmeFile):
+                    inputFile = open(readmeFile)
+                    lines = inputFile.readlines()
+                    inputFile.close()
+                    try:
+                        fileName = GetFileNameFromFilePath(readmeFile).decode('shift-jis') + '.txt'
+                        self.Log('================================= ' + fileName + ' ===================================')
+                        for line in lines:
+                            self.Log(line.decode('shift-jis'))
+                    except:
+                        ShowDefaultReadme()
         else:
             ShowDefaultReadme()
-        self.Log('============================================================================')
 
     def SetPmxFile(self, fileName):
+        if(IsContainEastAsianWord(fileName)):
+            self.MessageBox('Only support English path!')
+            return
         self.__pmxFile = ConvertToUnixPath(fileName).encode('ascii','ignore')
         cmds.textField(self.pmxText, edit=True, text=self.__pmxFile)
         self.CheckReadmeFile(self.__pmxFile)
 
     def AddVmdFile(self, fileName):
+        if(IsContainEastAsianWord(fileName)):
+            self.MessageBox('Only support English path!')
+            return
         fileName = ConvertToUnixPath(fileName).encode('ascii','ignore')
         self.__vmdFileList.append(fileName)
         cmds.textScrollList(self.vmdScrollList, edit = True, append=[fileName])
 
     def Log(self, log):
         def WriteToLog(log):
-            cmds.scrollField(self.logText, edit=True, insertText = log + '\n')
+            cmds.scrollField(self.logText, edit = True, insertText = log + '\n')
         # executeInMainThreadWithResult() can't call recursively, so Log() can't be called in executeInMainThreadWithResult()
         maya.utils.executeInMainThreadWithResult(WriteToLog, log)
+
+    def ClearLog(self):
+        cmds.scrollField(self.logText, edit = True, clear = True)
 
     def MessageBox(self, msg = ''):
         cmds.confirmDialog(title='Confirm', message=msg)
@@ -151,18 +166,20 @@ class MainWindow(object):
 
     def AsyncProcess(self):
         self.__isProcessing = True
-        self.Log('Start convert ' + self.__pmxFile)
-        self.fbxFilePath = self.__converter.Process(self.__pmxFile, self.__vmdFileList)
-        self.Log('Start modify ' + self.fbxFilePath)
-        self.__modifier.Process(self.fbxFilePath)
-        # run import process in GUI thread
-        def ImportProcess():
-            self.__importer.Process(self.fbxFilePath)
+        try:
+            self.Log('Start convert ' + self.__pmxFile)
+            self.fbxFilePath = self.__converter.Process(self.__pmxFile, self.__vmdFileList)
+            self.Log('Start modify ' + self.fbxFilePath)
+            self.__modifier.Process(self.fbxFilePath)
+            # run import process in GUI thread
+            def ImportProcess():
+                self.__importer.Process(self.fbxFilePath)
+            self.Log('Start import ' + self.fbxFilePath)
+            maya.utils.executeInMainThreadWithResult(ImportProcess)
+            self.Log('Import successed!')
+        finally:
             self.CleanTempFiles()
             self.__isProcessing = False
-        self.Log('Start import ' + self.fbxFilePath)
-        maya.utils.executeInMainThreadWithResult(ImportProcess)
-        self.Log('Import successed!')
 
     def Process(self):
         if not self.__agreeTerms:
@@ -174,6 +191,7 @@ class MainWindow(object):
         if self.__pmxFile is '':
             self.MessageBox('Please import a pmx/pmd file!')
             return
+        self.ClearLog()
         preProcessor = self.Processor('MMD4MayaProcessor', self)
         preProcessor.daemon = True
         preProcessor.start()

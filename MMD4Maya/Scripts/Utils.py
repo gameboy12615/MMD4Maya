@@ -1,4 +1,5 @@
 import os, sys
+import unicodedata
 
 def ConvertToUnixPath(path = ""):
     return path.replace("\\", "/")
@@ -57,3 +58,13 @@ def ReplaceAllStringInFile(filePath, sourceStr, targetStr):
 
     outputFile.close()
 
+def IsContainEastAsianWord(text = ''):
+    result = False
+    for ch in text:
+        if isinstance(ch, unicode):
+            if unicodedata.east_asian_width(ch) != 'Na':
+                result = True
+                break
+            else:
+                continue
+    return result
