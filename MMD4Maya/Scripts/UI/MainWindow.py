@@ -53,12 +53,13 @@ class MainWindow(object):
         # private attribute
         self.__converter = FBXConverter(self)
         self.__modifier = FBXModifier(self)
-        self.__importer = FBXImporter()
+        self.__importer = FBXImporter(self)
         self.__pmxFile = ''
         self.__vmdFileList = []
         self.__selectedVmdFileIndex = 0
         self.__agreeTerms = False
         self.__isProcessing = False
+        self.__isHasTransparencyTexture = False
 
         # create window
         if cmds.window("MMD4Maya", exists = True):
@@ -130,6 +131,9 @@ class MainWindow(object):
         self.__vmdFileList.append(fileName)
         cmds.textScrollList(self.vmdScrollList, edit = True, append=[fileName])
 
+    def SetHasTransparencyTexture(self, isHas):
+        self.__isHasTransparencyTexture = isHas
+
     def Log(self, log):
         def WriteToLog(log):
             cmds.scrollField(self.logText, edit = True, insertText = log + '\n')
@@ -166,6 +170,7 @@ class MainWindow(object):
 
     def AsyncProcess(self):
         self.__isProcessing = True
+        self.__isHasTransparencyTexture = False
         try:
             self.Log('Start convert ' + self.__pmxFile)
             self.fbxFilePath = self.__converter.Process(self.__pmxFile, self.__vmdFileList)
@@ -180,6 +185,10 @@ class MainWindow(object):
         finally:
             self.CleanTempFiles()
             self.__isProcessing = False
+            if(self.__isHasTransparencyTexture):
+                cmds.setAttr('hardwareRenderingGlobals.transparencyAlgorithm', 3)
+            else:
+                cmds.setAttr('hardwareRenderingGlobals.transparencyAlgorithm', 1)
 
     def Process(self):
         if not self.__agreeTerms:

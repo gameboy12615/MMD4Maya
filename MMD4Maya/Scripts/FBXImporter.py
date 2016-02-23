@@ -4,6 +4,9 @@ import maya.cmds as cmds
 
 class FBXImporter:
 
+    def __init__(self, mainWindow = None):
+        self.mainWindow = mainWindow
+
     def ImportFBXFile(self, filePath):
         nPos = filePath.rfind('/')
         fileName = filePath[nPos+1:filePath.rfind('.')]
@@ -20,7 +23,7 @@ class FBXImporter:
             if cmds.objExists('file' + str(i+1)) :
                 continue
             else:
-                fileNode = cmds.shadingNode('file', asTexture=True)
+                fileNode = cmds.shadingNode('file', asTexture=True, isColorManaged=True)
                 cmds.setAttr(fileNode + '.fileTextureName', textures[i], type="string")
         print textures
 
@@ -42,6 +45,10 @@ class FBXImporter:
                 continue
             try:
                 cmds.connectAttr('file%s.outColor' %iTexID, '%s.color' %iMatID)
+                isFileHasAlpha = cmds.getAttr('file%s.fileHasAlpha' %iTexID)
+                if(isFileHasAlpha):
+                    cmds.connectAttr('file%s.outTransparency' %iTexID, '%s.transparency' %iMatID)
+                    self.mainWindow.SetHasTransparencyTexture(True)
                 print iMatID
             except:
                 continue
