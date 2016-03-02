@@ -40,10 +40,16 @@ class MainWindow(object):
     def OnDeleteButtonClicked(self, *args):
         self.DeleteSelectedVmdFile()
 
-    def OnCheckBoxOn(self, *args):
+    def OnTransparencyCheckBoxOn(self, *args):
+        self.__importTransparency = True
+
+    def OnTransparencyCheckBoxOff(self, *args):
+        self.__importTransparency = False
+
+    def OnTermsCheckBoxOn(self, *args):
         self.__agreeTerms = True
 
-    def OnCheckBoxOff(self, *args):
+    def OnTermsCheckBoxOff(self, *args):
         self.__agreeTerms = False
 
     def OnProcessButtonClicked(self, *args):
@@ -58,6 +64,7 @@ class MainWindow(object):
         self.__vmdFileList = []
         self.__selectedVmdFileIndex = 0
         self.__agreeTerms = False
+        self.__importTransparency = False
         self.__isProcessing = False
         self.__isHasTransparencyTexture = False
 
@@ -79,13 +86,18 @@ class MainWindow(object):
         cmds.button(parent = importButtonLayout, label = 'Delete selected vmd file', width = 149, height = 54, command = self.OnDeleteButtonClicked)
 
         processLayout = cmds.columnLayout(parent = mainLayout, width = 600)
-        cmds.separator(parent = processLayout, height = 10, style = 'none')
-        cmds.text('Log viewer:', font = "boldLabelFont", parent = processLayout)
-        cmds.separator(parent = processLayout, height = 10, style = 'none')
-        self.logText = cmds.scrollField(parent = processLayout, width = 600, height = 300, editable = False)
+        cmds.separator(parent = processLayout, height = 8, style = 'none')
+
+        settingLayout = cmds.rowColumnLayout(parent = processLayout, numberOfColumns=2, columnWidth=[(1, 450), (2, 150)] )
+        cmds.text('Log viewer:', font = "boldLabelFont", align='left', parent = settingLayout)
+        cmds.checkBox(parent = settingLayout, label='Import Transparency', 
+                      onCommand = self.OnTransparencyCheckBoxOn, offCommand = self.OnTransparencyCheckBoxOff)
+
+        cmds.separator(parent = processLayout, height = 8, style = 'none')
+        self.logText = cmds.scrollField(parent = processLayout, width = 600, height = 297, editable = False)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
         cmds.checkBox(parent = processLayout, label='You must agree to these terms of use before using the model/motion.', 
-                      onCommand = self.OnCheckBoxOn, offCommand = self.OnCheckBoxOff)
+                      onCommand = self.OnTermsCheckBoxOn, offCommand = self.OnTermsCheckBoxOff)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
         self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 60, 
                                          command = self.OnProcessButtonClicked)
@@ -133,6 +145,9 @@ class MainWindow(object):
 
     def SetHasTransparencyTexture(self, isHas):
         self.__isHasTransparencyTexture = isHas
+
+    def IsImportTransparency(self):
+        return self.__importTransparency
 
     def Log(self, log):
         def WriteToLog(log):
@@ -185,7 +200,7 @@ class MainWindow(object):
         finally:
             self.CleanTempFiles()
             self.__isProcessing = False
-            if(self.__isHasTransparencyTexture):
+            if(self.__importTransparency and self.__isHasTransparencyTexture):
                 cmds.setAttr('hardwareRenderingGlobals.transparencyAlgorithm', 3)
             else:
                 cmds.setAttr('hardwareRenderingGlobals.transparencyAlgorithm', 1)

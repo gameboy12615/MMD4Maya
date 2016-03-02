@@ -45,10 +45,11 @@ class FBXImporter:
                 continue
             try:
                 cmds.connectAttr('file%s.outColor' %iTexID, '%s.color' %iMatID)
-                isFileHasAlpha = cmds.getAttr('file%s.fileHasAlpha' %iTexID)
-                if(isFileHasAlpha):
-                    cmds.connectAttr('file%s.outTransparency' %iTexID, '%s.transparency' %iMatID)
-                    self.mainWindow.SetHasTransparencyTexture(True)
+                if(self.mainWindow.IsImportTransparency()):
+                    isFileHasAlpha = cmds.getAttr('file%s.fileHasAlpha' %iTexID)
+                    if(isFileHasAlpha):
+                        cmds.connectAttr('file%s.outTransparency' %iTexID, '%s.transparency' %iMatID)
+                        self.mainWindow.SetHasTransparencyTexture(True)
                 print iMatID
             except:
                 continue
