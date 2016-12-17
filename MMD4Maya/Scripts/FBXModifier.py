@@ -106,4 +106,4 @@ class FBXModifier:
         self.ModifyMaterialName(fbxFilePath)
         self.ModifyBoneName(fbxFilePath)
         self.ModifyXmlFile(xmlFilePath)
-        print 'modify process completed!'
+        print('modify process completed!')

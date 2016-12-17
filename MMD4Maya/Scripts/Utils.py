@@ -29,16 +29,16 @@ def CreateDirInParentDir(parentDir = "", newDirName = ""):
     newDirPath = parentDir + newDirName
     if not os.path.isdir(newDirPath):
         os.makedirs(newDirPath)
-    newDirPath += '/'	
-    print newDirPath
+    newDirPath += '/'
+    print(newDirPath)
 
     if not os.path.exists(newDirPath):
-        print newDirPath + ' does not exist!'
+        print(newDirPath + ' does not exist!')
         return ''
     return newDirPath
 
 def ReplaceAllStringInFile(filePath, sourceStr, targetStr):
-    print 'ReplaceAllStringInFile ' + filePath + ' from ' + sourceStr + ' to ' + targetStr
+    print('ReplaceAllStringInFile ' + filePath + ' from ' + sourceStr + ' to ' + targetStr)
     inputFile = open(filePath)
     lines = inputFile.readlines()
     inputFile.close()

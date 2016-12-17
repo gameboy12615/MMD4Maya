@@ -3,12 +3,12 @@ from MMD4Maya.Scripts.FBXImporter import *
 from MMD4Maya.Scripts.FBXModifier import *
 from MMD4Maya.Scripts.UI.ExplorerWindow import *
 from MMD4Maya.Scripts.Utils import *
-from PySide import QtGui, QtCore
+from PySide2 import QtCore, QtWidgets
 
 import maya.OpenMayaUI as OpenMayaUI
 import maya.cmds as cmds
 import maya.utils
-import shiboken
+import shiboken2
 import shutil
 import threading
 import os
@@ -163,7 +163,7 @@ class MainWindow(object):
 
     def ShowExplorer(self, type = 'pmd'):
         ptr = OpenMayaUI.MQtUtil.mainWindow()
-        widget = shiboken.wrapInstance(long(ptr),QtGui.QWidget)
+        widget = shiboken2.wrapInstance(long(ptr),QtWidgets.QWidget)
         explorerWin = ExplorerWindow(widget, type, self)
         explorerWin.show()
 
