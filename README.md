@@ -1,3 +1,6 @@
+master branch: maya2015~maya2016<br>
+maya2017 branch: maya2017<br>
+
 # MMD4Maya
 This is maya plug-in which use for importing pmx/pmd model to maya.<br>
 It is based on pmx2fbx.exe which is wrote by http://stereoarts.jp/
