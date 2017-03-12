@@ -19,7 +19,7 @@ class FBXImporter:
         texFileNames = dom.getElementsByTagName("fileName")
         textures = []
         for i, texFileName in enumerate(texFileNames) :
-            textures.append(texFileName.childNodes[0].data.encode('shift-jis'))
+            textures.append(texFileName.childNodes[0].data)
             if cmds.objExists('file' + str(i+1)) :
                 continue
             else:
