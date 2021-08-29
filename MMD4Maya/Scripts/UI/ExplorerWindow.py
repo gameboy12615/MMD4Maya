@@ -1,9 +1,10 @@
-from PySide import QtGui, QtCore
+from PySide2 import QtWidgets,QtCore
+from PySide2.QtWidgets import QMainWindow
 from MMD4Maya.Scripts.Utils import *
 
 import pymel.util.path as pmp
 
-class ExplorerWindow(QtGui.QMainWindow):
+class ExplorerWindow(QMainWindow):
     def __init__(self, parent = None, type = 'pmd', mainWindow = None):
         super(ExplorerWindow,self).__init__(parent)
         self.mainWindow = mainWindow
@@ -11,24 +12,24 @@ class ExplorerWindow(QtGui.QMainWindow):
         self.setWindowTitle('MMD4Maya Explorer')
         self.resize( 800, 800 )
 
-        widget = QtGui.QWidget()
+        widget = QtWidgets.QWidget()
         self.setCentralWidget(widget)
 
-        mainLayout = QtGui.QVBoxLayout()
+        mainLayout = QtWidgets.QVBoxLayout()
         widget.setLayout(mainLayout)
 
-        self.fileBrowserWidget = QtGui.QWidget(self)
-        self.dirModel = QtGui.QFileSystemModel()
+        self.fileBrowserWidget = QtWidgets.QWidget(self)
+        self.dirModel = QtWidgets.QFileSystemModel()
         self.dirModel.setRootPath("C:/")
 
-        importLayout = QtGui.QHBoxLayout()
+        importLayout = QtWidgets.QHBoxLayout()
         importLayout.setSpacing(10)
-        self.pathViewer = QtGui.QLineEdit(self)
-        importButton = QtGui.QPushButton('Import')
+        self.pathViewer = QtWidgets.QLineEdit(self)
+        importButton = QtWidgets.QPushButton('Import')
         importButton.clicked.connect(self.OnImportButtonClicked)
-        cancelButton = QtGui.QPushButton('Cancel')
+        cancelButton = QtWidgets.QPushButton('Cancel')
         cancelButton.clicked.connect(self.OnCancelButtonClicked)
-        fileNameLabel = QtGui.QLabel('File name:')
+        fileNameLabel = QtWidgets.QLabel('File name:')
 
         self.nameFilters = []
         if self.explorerType == 'pmd':
@@ -39,10 +40,10 @@ class ExplorerWindow(QtGui.QMainWindow):
         self.dirModel.setNameFilters(self.nameFilters)
         self.dirModel.setNameFilterDisables(False)
 
-        self.folderView = QtGui.QTreeView(parent = self)
+        self.folderView = QtWidgets.QTreeView(parent = self)
         self.folderView.setModel(self.dirModel)
-        self.folderView.clicked[QtCore.QModelIndex].connect(self.Clicked) 
-        self.folderView.doubleClicked[QtCore.QModelIndex].connect(self.DoubleClicked) 
+        self.folderView.clicked[QtCore.QModelIndex].connect(self.Clicked)
+        self.folderView.doubleClicked[QtCore.QModelIndex].connect(self.DoubleClicked)
         self.folderView.setColumnWidth(0,250)
 
         mainLayout.addWidget(self.folderView)

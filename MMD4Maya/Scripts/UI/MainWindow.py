@@ -1,18 +1,19 @@
+import glob
+import os
+import shutil
+import threading
+
+import maya.OpenMayaUI as OpenMayaUI
+import maya.cmds as cmds
+import maya.utils
+import shiboken2
+
 from MMD4Maya.Scripts.FBXConverter import *
 from MMD4Maya.Scripts.FBXImporter import *
 from MMD4Maya.Scripts.FBXModifier import *
 from MMD4Maya.Scripts.UI.ExplorerWindow import *
 from MMD4Maya.Scripts.Utils import *
-from PySide import QtGui, QtCore
 
-import maya.OpenMayaUI as OpenMayaUI
-import maya.cmds as cmds
-import maya.utils
-import shiboken
-import shutil
-import threading
-import os
-import glob
 
 class MainWindow(object):
 
@@ -71,7 +72,7 @@ class MainWindow(object):
         # create window
         if cmds.window("MMD4Maya", exists = True):
             cmds.deleteUI("MMD4Maya")
-        window = cmds.window(title="MMD4Maya", widthHeight=(603, 580), 
+        window = cmds.window(title="MMD4Maya", widthHeight=(603, 580),
                              sizeable = False, minimizeButton = False, maximizeButton = False)
         # create layout
         mainLayout = cmds.columnLayout(width = 600)
@@ -79,7 +80,7 @@ class MainWindow(object):
         importLayout = cmds.rowColumnLayout(parent = mainLayout, numberOfColumns=2, columnWidth=[(1, 450), (2, 150)] )
         self.pmxText = cmds.textField(parent = importLayout)
         cmds.button(parent = importLayout, label = 'Import pmx/pmd file', command = self.OnImportPmxButtonClicked)
-        self.vmdScrollList = cmds.textScrollList(parent = importLayout, height = 110, allowMultiSelection = False, 
+        self.vmdScrollList = cmds.textScrollList(parent = importLayout, height = 110, allowMultiSelection = False,
                                                  selectCommand = self.OnSelectVmdFile, deleteKeyCommand = self.OnDeleteKeyClicked)
         importButtonLayout = cmds.columnLayout(parent = importLayout, width = 149, rowSpacing = 1)
         cmds.button(parent = importButtonLayout, label = 'Add vmd file', width = 149, height = 54, command = self.OnAddVmdButtonClicked)
@@ -90,16 +91,16 @@ class MainWindow(object):
 
         settingLayout = cmds.rowColumnLayout(parent = processLayout, numberOfColumns=2, columnWidth=[(1, 450), (2, 150)] )
         cmds.text('Log viewer:', font = "boldLabelFont", align='left', parent = settingLayout)
-        cmds.checkBox(parent = settingLayout, label='Import Transparency', 
+        cmds.checkBox(parent = settingLayout, label='Import Transparency',
                       onCommand = self.OnTransparencyCheckBoxOn, offCommand = self.OnTransparencyCheckBoxOff)
 
         cmds.separator(parent = processLayout, height = 8, style = 'none')
         self.logText = cmds.scrollField(parent = processLayout, width = 600, height = 297, editable = False)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
-        cmds.checkBox(parent = processLayout, label='You must agree to these terms of use before using the model/motion.', 
+        cmds.checkBox(parent = processLayout, label='You must agree to these terms of use before using the model/motion.',
                       onCommand = self.OnTermsCheckBoxOn, offCommand = self.OnTermsCheckBoxOff)
         cmds.separator(parent = processLayout, height = 10, style = 'none')
-        self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 60, 
+        self.processButton = cmds.button(parent = processLayout, label = 'Process', width = 600, height = 60,
                                          command = self.OnProcessButtonClicked)
         # show window
         cmds.showWindow(window)
@@ -163,7 +164,7 @@ class MainWindow(object):
 
     def ShowExplorer(self, type = 'pmd'):
         ptr = OpenMayaUI.MQtUtil.mainWindow()
-        widget = shiboken.wrapInstance(long(ptr),QtGui.QWidget)
+        widget = shiboken2.wrapInstance(long(ptr),QtWidgets.QWidget)
         explorerWin = ExplorerWindow(widget, type, self)
         explorerWin.show()
 
