@@ -1,6 +1,6 @@
 master branch: maya2015~maya2016<br>
 maya2019 branch: maya2019<br>
-## Updated for Maya 2019 (UPDATED BY MINI-SYLAR)
+## Updated for Maya 2019 (BY MINI-SYLAR)
 1. Updated for maya 2019 (since I really needed it) and should work with all version from (2018, 2019, 2020, 2022)
 since they all use pyside2.
 I can't test this since I have only 2019 installed...fingers crossed tho :)
