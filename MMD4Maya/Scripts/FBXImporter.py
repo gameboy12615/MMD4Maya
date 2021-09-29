@@ -11,7 +11,7 @@ class FBXImporter:
         nPos = filePath.rfind('/')
         fileName = filePath[nPos+1:filePath.rfind('.')]
         importedFile = cmds.file(filePath, i=True, type='FBX', ignoreVersion=True, ra=True, rdn=True, mergeNamespacesOnClash=False, namespace=fileName)
-        print importedFile + ' import completed!'
+        print(importedFile + ' import completed!')
 
     def ImportTexture(self, filePath):
         dom = parse(filePath)
@@ -19,25 +19,25 @@ class FBXImporter:
         texFileNames = dom.getElementsByTagName("fileName")
         textures = []
         for i, texFileName in enumerate(texFileNames) :
-            textures.append(texFileName.childNodes[0].data.encode('shift-jis'))
+            textures.append(texFileName.childNodes[0].data)
             if cmds.objExists('file' + str(i+1)) :
                 continue
             else:
                 fileNode = cmds.shadingNode('file', asTexture=True, isColorManaged=True)
                 cmds.setAttr(fileNode + '.fileTextureName', textures[i], type="string")
-        print textures
+        print(textures)
 
         materialNames = dom.getElementsByTagName("materialName")	
         materialID = []
         for i, materialName in enumerate(materialNames) :
             materialID.append(materialName.childNodes[0].data)
-        print materialID
+        print(materialID)
 
         textureIDs = dom.getElementsByTagName("textureID")
         materialTexID = []
         for i, textureID in enumerate(textureIDs) :
             materialTexID.append(textureID.childNodes[0].data)
-        print materialTexID
+        print(materialTexID)
 
         for i, iMatID in enumerate(materialID) :
             iTexID = int(materialTexID[int(i)])+1
@@ -50,7 +50,7 @@ class FBXImporter:
                     if(isFileHasAlpha):
                         cmds.connectAttr('file%s.outTransparency' %iTexID, '%s.transparency' %iMatID)
                         self.mainWindow.SetHasTransparencyTexture(True)
-                print iMatID
+                print(iMatID)
             except:
                 continue
 
