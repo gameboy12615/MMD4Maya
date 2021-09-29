@@ -1,4 +1,5 @@
-master branch: maya2015~maya2016<br>
+master: dev</br>
+maya2016: maya2015~maya2016<br>
 maya2017 branch: maya2017<br>
 
 # MMD4Maya
