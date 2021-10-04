@@ -1,6 +1,7 @@
 master: dev</br>
-maya2016: maya2015~maya2016<br>
+maya2016 branch: maya2015~maya2016<br>
 maya2017 branch: maya2017<br>
+maya2022 branch: maya2022<br>
 
 # MMD4Maya
 This is maya plug-in which use for importing pmx/pmd model to maya.<br>
