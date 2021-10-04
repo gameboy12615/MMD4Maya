@@ -114,7 +114,7 @@ class MainWindow(object):
             for readmeFile in txtFilenames:
                 readmeFile = ConvertToUnixPath(readmeFile)
                 if os.path.exists(readmeFile):
-                    inputFile = open(readmeFile)
+                    inputFile = open(readmeFile, encoding=CheckCharset(readmeFile), errors='ignore')
                     lines = inputFile.readlines()
                     inputFile.close()
                     try:
@@ -131,7 +131,7 @@ class MainWindow(object):
         if(IsContainEastAsianWord(fileName)):
             self.MessageBox('Only support English path!')
             return
-        self.__pmxFile = ConvertToUnixPath(fileName).encode('ascii','ignore')
+        self.__pmxFile = ConvertToUnixPath(fileName).encode('ascii','ignore').decode()
         cmds.textField(self.pmxText, edit=True, text=self.__pmxFile)
         self.CheckReadmeFile(self.__pmxFile)
 
@@ -163,7 +163,7 @@ class MainWindow(object):
 
     def ShowExplorer(self, type = 'pmd'):
         ptr = OpenMayaUI.MQtUtil.mainWindow()
-        widget = shiboken2.wrapInstance(long(ptr),QtWidgets.QWidget)
+        widget = shiboken2.wrapInstance(int(ptr),QtWidgets.QWidget)
         explorerWin = ExplorerWindow(widget, type, self)
         explorerWin.show()
 

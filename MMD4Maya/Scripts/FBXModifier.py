@@ -22,10 +22,10 @@ class FBXModifier:
         return newName
 
     def ModifyMaterialName(self, fbxFilePath):
-        inputFbxFile = open(fbxFilePath)
+        inputFbxFile = open(fbxFilePath, 'r', encoding='UTF-8')
         inputFbxLines = inputFbxFile.readlines()
         inputFbxFile.close()
-        outputFbxFile = open(fbxFilePath, 'w')
+        outputFbxFile = open(fbxFilePath, 'w', encoding='UTF-8')
         tag1 = 'Material::'
         tag2 = ';Material::'
         for line in inputFbxLines:
@@ -54,7 +54,7 @@ class FBXModifier:
         outputFbxFile.close()
 
     def ModifyBoneName(self, fbxFilePath):
-        inputFbxFile = open(fbxFilePath)
+        inputFbxFile = open(fbxFilePath, 'r', encoding='UTF-8')
         inputFbxLines = inputFbxFile.readlines()
         inputFbxFile.close()
         tagBone = '"NodeAttribute::'
@@ -86,7 +86,7 @@ class FBXModifier:
                             inputFbxLines[i] = inputFbxLines[i].replace(boneNames[j], newBoneNames[j])
                         break
         # save modified bone names to file
-        outputFile = open(fbxFilePath, 'w')
+        outputFile = open(fbxFilePath, 'w', encoding='UTF-8')
         for line in inputFbxLines:
             if not line:
                 break
