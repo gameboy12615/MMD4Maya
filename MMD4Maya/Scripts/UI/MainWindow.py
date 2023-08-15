@@ -139,7 +139,7 @@ class MainWindow(object):
         if(IsContainEastAsianWord(fileName)):
             self.MessageBox('Only support English path!')
             return
-        fileName = ConvertToUnixPath(fileName).encode('ascii','ignore')
+        fileName = ConvertToUnixPath(fileName).encode('ascii','ignore').decode()
         self.__vmdFileList.append(fileName)
         cmds.textScrollList(self.vmdScrollList, edit = True, append=[fileName])
 
